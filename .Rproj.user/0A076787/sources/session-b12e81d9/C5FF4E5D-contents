@@ -1,16 +1,41 @@
+---
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Tracking Lara’s Books
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Tracking Lara's Books
 
 <!-- badges: start -->
 <!-- badges: end -->
 
+
 We have a lot to cover, so some of these will just come to mind
+
+```{r grabbing_data, include=FALSE}
+
+library(tidyverse)
+
+lara_books = googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1td080I_vy1AUO631auLaQP88PwxnMCmz8jXGoslrkC4/edit#gid=1816103009",
+                                       sheet = "All Years")
+lara_books_cleaned = lara_books %>%
+  select(-...2) %>%
+  mutate(year_month = as.Date(format(`Date Finished`, "%Y-%m-01")))
+```
+
 
 ## Cumulative Sum of Books Read Over Time
 
-``` r
+```{r}
 lara_books_cleaned %>%
   group_by(year_month) %>%
   count %>%
@@ -21,11 +46,9 @@ lara_books_cleaned %>%
   xlab("Date") + ylab("Cumulative Sum") + ggtitle("Cumulative Sum of Books Read Over Time")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
-
 ## Cumulative Sum of Pages Read Over Time
 
-``` r
+```{r}
 lara_books_cleaned %>%
   group_by(year_month) %>%
   summarise(pages_read = sum(`Page Count`)) %>%
@@ -36,18 +59,15 @@ lara_books_cleaned %>%
   xlab("Date") + ylab("Cumulative Sum") + ggtitle("Cumulative Sum of Pages Read Over Time")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
-
 ## Types of Books Read
 
 Small Note here:
 
-There will be double/triple/etc counting since some books have multiple
-genres
+There will be double/triple/etc counting since some books have multiple genres
 
 ### Per Month
 
-``` r
+```{r fig.height=6, fig.width=18}
 lara_books_cleaned %>%
   group_by(Genre, year_month) %>%
   count %>% ungroup() %>%
@@ -58,15 +78,11 @@ lara_books_cleaned %>%
   geom_col() +
   xlab("Date") + ylab("Books Read") +
   ggtitle("Type of Books Read Per Month")
-#> `summarise()` has grouped output by 'Genre'. You can override using the
-#> `.groups` argument.
 ```
-
-![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ### Overall
 
-``` r
+```{r fig.height=10, fig.width=9}
 lara_books_cleaned %>%
   group_by(Genre) %>%
   count %>% ungroup() %>%
@@ -81,4 +97,5 @@ lara_books_cleaned %>%
   ggtitle("Types of Books Read Overall")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+
